@@ -4,9 +4,12 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <fragment android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <fragment xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/map"
-        android:name="com.naver.maps.map.MapFragment" />
+        android:name="com.naver.maps.map.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:navermap_locationButtonEnabled="true"
+        app:navermap_tiltGesturesEnabled="false" />
 
 </RelativeLayout>
