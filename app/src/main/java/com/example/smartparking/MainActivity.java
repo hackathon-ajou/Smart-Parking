@@ -1,6 +1,8 @@
 package com.example.smartparking;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
@@ -112,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // 로그인 성공
+                            Intent intent = new Intent(getApplicationContext(),MapActivity.class);
+                            startActivity(intent);
                             Toast.makeText(MainActivity.this, R.string.success_login, Toast.LENGTH_SHORT).show();
                         } else {
                             // 로그인 실패
