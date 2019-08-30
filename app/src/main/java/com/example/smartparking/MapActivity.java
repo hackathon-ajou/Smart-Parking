@@ -39,13 +39,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_map);
 
         locationSource =
                 new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
 
         NaverMapSdk.getInstance(this).setClient(
-                new NaverMapSdk.NaverCloudPlatformClient("YOUR_CLIENT_ID"));
+                new NaverMapSdk.NaverCloudPlatformClient("jdgdtz7iav"));
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -90,8 +90,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Marker marker = new Marker();
         marker.setPosition(new LatLng(37.5666102, 126.9783881));
         marker.setOnClickListener(o -> {
-//            Intent intent = new Intent(getApplicationContext(),TestActivity.class);
-//            startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(),TestActivity.class);
+            startActivity(intent);
             return true;
         });
         marker.setMap(naverMap);
