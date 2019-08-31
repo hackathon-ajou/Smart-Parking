@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -47,7 +46,7 @@ public class SignUpActivity extends AppCompatActivity {
         email = editTextEmail.getText().toString();
         password = editTextPassword.getText().toString();
 
-        if(isValidEmail() && isValidPasswd()) {
+        if (isValidEmail() && isValidPasswd()) {
             createUser(email, password);
         }
     }
@@ -86,7 +85,7 @@ public class SignUpActivity extends AppCompatActivity {
                     public void onComplete(Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // 회원가입 성공
-                            Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);
                             Toast.makeText(getApplicationContext(), R.string.success_signup, Toast.LENGTH_SHORT).show();
                         } else {

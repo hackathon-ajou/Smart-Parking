@@ -6,8 +6,69 @@
     android:layout_height="match_parent"
     tools:context="com.example.smartparking.TestActivity">
 
-    <ListView
-        android:id="@+id/listView"
+    <ImageView
+        android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@drawable/parking_lot" />
+
+    <ImageView
+        android:id="@+id/car1"
+        android:layout_width="55dp"
+        android:layout_height="110dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="120dp"
+        android:layout_marginBottom="27dp"
+        android:visibility="invisible"
+        android:background="@drawable/car" />
+
+    <ImageView
+        android:id="@+id/car2"
+        android:layout_width="60dp"
+        android:layout_height="97dp"
+        android:rotation="90"
+        android:layout_marginLeft="270dp"
+        android:layout_marginTop="290dp"
+        android:visibility="invisible"
+        android:background="@drawable/car"/>
+
+    <ImageView
+        android:id="@+id/car3"
+        android:layout_width="60dp"
+        android:layout_height="97dp"
+        android:rotation="90"
+        android:layout_marginLeft="270dp"
+        android:layout_marginTop="430dp"
+        android:visibility="invisible"
+        android:background="@drawable/car"/>
+
+    <ImageView
+        android:id="@+id/car4"
+        android:layout_width="55dp"
+        android:layout_height="110dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="27dp"
+        android:visibility="invisible"
+        android:background="@drawable/car" />
+
+    <ImageView
+        android:id="@+id/car5"
+        android:layout_width="60dp"
+        android:layout_height="97dp"
+        android:rotation="90"
+        android:layout_marginLeft="270dp"
+        android:layout_marginTop="137dp"
+        android:visibility="invisible"
+        android:background="@drawable/car" />
+
+    <ImageView
+        android:id="@+id/car6"
+        android:layout_width="55dp"
+        android:layout_height="110dp"
+        android:layout_marginLeft="65dp"
+        android:layout_marginTop="30dp"
+        android:visibility="invisible"
+        android:background="@drawable/car" />
+
 </RelativeLayout>

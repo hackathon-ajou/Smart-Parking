@@ -23,7 +23,7 @@ public class SensorData {
         return distance;
     }
 
-    public void setMessage(int distance) {
+    public void setDistance(double distance) {
         this.distance = distance;
     }
 }
