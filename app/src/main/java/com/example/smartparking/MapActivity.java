@@ -61,9 +61,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private ArrayList<LatLng> location = new ArrayList<>();
     private JSONObject JSON_file;
     private ArrayList<LatLng> locationpath = new ArrayList<>();
-    LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-    @SuppressLint("MissingPermission")
-    Location myGPS = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+    LocationManager lm;
     MapFragment mapFragment;
     LinearLayout popup;
     Button fullbt;
@@ -80,8 +78,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         locationSource =
                 new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
 
-        ParkingInfoTask parkingInfoTask = new ParkingInfoTask(url, null);
-        parkingInfoTask.execute();
+        lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        @SuppressLint("MissingPermission")
+        Location myGPS = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
         NaverMapSdk.getInstance(this).setClient(
                 new NaverMapSdk.NaverCloudPlatformClient("jdgdtz7iav"));
@@ -111,7 +110,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     NaverMap.DEFAULT_CAMERA_POSITION.target, NaverMap.DEFAULT_CAMERA_POSITION.zoom, 30, 45)));
             getSupportFragmentManager().beginTransaction().add(R.id.map, mapFragment).commit();
         }
-
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -233,15 +232,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Marker marker = makeMarker(location.get(i));
             marker.setMap(naverMap);
         }
-
-        PathOverlay path = new PathOverlay();
-        path.setCoords(locationpath);
-        path.setColor(Color.BLUE);
-        path.setOutlineWidth(5);
-        path.setPatternImage(OverlayImage.fromResource(R.drawable.path_pattern));
-        path.setPatternInterval(10);
-        path.setMap(naverMap);
-        path.setMap(null);
+        if(locationpath.size()>2) {
+            PathOverlay path = new PathOverlay();
+            path.setCoords(locationpath);
+            path.setColor(Color.BLUE);
+            path.setOutlineWidth(5);
+            path.setPatternImage(OverlayImage.fromResource(R.drawable.path_pattern));
+            path.setPatternInterval(10);
+            path.setMap(naverMap);
+        }
     }
 
     public class ParkingInfoTask extends AsyncTask<Void, Void, Void> {
