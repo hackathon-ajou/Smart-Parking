@@ -6,7 +6,10 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -101,11 +104,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public Marker makeMarker(LatLng location){
         Marker marker = new Marker();
         marker.setPosition(location);
+
+        LinearLayout popup = (LinearLayout)findViewById(R.id.linear);
+
         marker.setOnClickListener(o -> {
-            Intent intent = new Intent(getApplicationContext(), ParkingMapActivity.class);
-            startActivity(intent);
+            popup.setVisibility(View.VISIBLE);
             return true;
         });
+
+        Button btn_parkingmap = (Button)findViewById(R.id.button_parkingMap);
+        btn_parkingmap.setOnClickListener(o->{
+            Intent intent = new Intent(getApplicationContext(), ParkingMapActivity.class);
+            startActivity(intent);
+        });
+
         return marker;
     }
 
@@ -157,63 +169,5 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             marker.setMap(naverMap);
         }
 
-        Marker markerWithCustomIcon = new Marker();
-        markerWithCustomIcon.setPosition(new LatLng(37.57000, 126.97618));
-        markerWithCustomIcon.setIcon(MarkerIcons.BLACK);
-        markerWithCustomIcon.setAngle(315);
-        markerWithCustomIcon.setMap(naverMap);
-
-        Marker flatMarker = new Marker();
-        flatMarker.setPosition(new LatLng(37.57145, 126.98191));
-//        flatMarker.setIcon(OverlayImage.fromResource(R.drawable.ic_info_black_24dp));
-//        flatMarker.setWidth(getResources().getDimensionPixelSize(R.dimen.marker_size));
-//        flatMarker.setHeight(getResources().getDimensionPixelSize(R.dimen.marker_size));
-        flatMarker.setFlat(true);
-        flatMarker.setAngle(90);
-        flatMarker.setMap(naverMap);
-
-        Marker markerWithAnchor = new Marker();
-        markerWithAnchor.setPosition(new LatLng(37.56768, 126.98602));
-//        markerWithAnchor.setIcon(OverlayImage.fromResource(R.drawable.marker_right_bottom));
-        markerWithAnchor.setAnchor(new PointF(1, 1));
-        markerWithAnchor.setAngle(90);
-        markerWithAnchor.setMap(naverMap);
-
-        Marker markerWithCaption = new Marker();
-        markerWithCaption.setPosition(new LatLng(37.56436, 126.97499));
-        markerWithCaption.setIcon(MarkerIcons.YELLOW);
-        markerWithCaption.setCaptionAlign(Align.Left);
-        markerWithCaption.setCaptionText(getString(R.string.marker_caption_1));
-        markerWithCaption.setMap(naverMap);
-
-        Marker markerWithSubCaption = new Marker();
-        markerWithSubCaption.setPosition(new LatLng(37.56138, 126.97970));
-        markerWithSubCaption.setIcon(MarkerIcons.PINK);
-        markerWithSubCaption.setCaptionTextSize(14);
-        markerWithSubCaption.setCaptionText(getString(R.string.marker_caption_2));
-        markerWithSubCaption.setSubCaptionTextSize(10);
-        markerWithSubCaption.setSubCaptionColor(Color.GRAY);
-        markerWithSubCaption.setSubCaptionText(getString(R.string.marker_sub_caption_2));
-        markerWithSubCaption.setMap(naverMap);
-
-        Marker tintColorMarker = new Marker();
-        tintColorMarker.setPosition(new LatLng(37.56500, 126.9783881));
-        tintColorMarker.setIcon(MarkerIcons.BLACK);
-        tintColorMarker.setIconTintColor(Color.RED);
-        tintColorMarker.setAlpha(0.5f);
-        tintColorMarker.setMap(naverMap);
-
-        PathOverlay path = new PathOverlay();
-        path.setCoords(Arrays.asList(
-                new LatLng(37.57152, 126.97714),
-                new LatLng(37.56607, 126.98268),
-                new LatLng(37.56445, 126.97707),
-                new LatLng(37.55855, 126.97822)
-        ));
-
-        path.setMap(naverMap);
-        path.setOutlineWidth(5);
-        path.setPatternImage(OverlayImage.fromResource(R.drawable.path_pattern));
-        path.setPatternInterval(10);
     }
 }

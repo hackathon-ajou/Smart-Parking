@@ -10,6 +10,53 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:navermap_locationButtonEnabled="true"
-        app:navermap_tiltGesturesEnabled="false" />
+        app:navermap_tiltGesturesEnabled="false">
+
+
+    </fragment>
+
+    <LinearLayout
+        android:id="@+id/linear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/map"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <TextView
+            android:id="@+id/available"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="25dp"
+            android:text="남은 자리: " />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginBottom="15dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button_parkingMap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginRight="30dp"
+                android:textSize="20dp"
+                android:text="자리보기" />
+
+            <Button
+                android:id="@+id/button_direction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="20dp"
+                android:text="길찾기" />
+        </LinearLayout>
+
+    </LinearLayout>
+
 
 </RelativeLayout>
