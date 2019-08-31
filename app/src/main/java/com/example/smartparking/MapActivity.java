@@ -21,6 +21,8 @@ import com.naver.maps.map.NaverMapSdk;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.overlay.Align;
 import com.naver.maps.map.overlay.Marker;
+import com.naver.maps.map.overlay.OverlayImage;
+import com.naver.maps.map.overlay.PathOverlay;
 import com.naver.maps.map.util.FusedLocationSource;
 import com.naver.maps.map.util.MarkerIcons;
 
@@ -36,6 +38,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -199,5 +202,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         tintColorMarker.setIconTintColor(Color.RED);
         tintColorMarker.setAlpha(0.5f);
         tintColorMarker.setMap(naverMap);
+
+        PathOverlay path = new PathOverlay();
+        path.setCoords(Arrays.asList(
+                new LatLng(37.57152, 126.97714),
+                new LatLng(37.56607, 126.98268),
+                new LatLng(37.56445, 126.97707),
+                new LatLng(37.55855, 126.97822)
+        ));
+
+        path.setMap(naverMap);
+        path.setOutlineWidth(5);
+        path.setPatternImage(OverlayImage.fromResource(R.drawable.path_pattern));
+        path.setPatternInterval(10);
     }
 }
