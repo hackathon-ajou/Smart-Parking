@@ -1,13 +1,17 @@
 package com.example.smartparking;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +22,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -61,14 +67,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private ArrayList<LatLng> location = new ArrayList<>();
     private JSONObject JSON_file;
     private ArrayList<LatLng> locationpath = new ArrayList<>();
-    LocationManager lm;
+
+    double my_longitude = 128.504183;
+    double my_latitude = 36.574759;
+
     MapFragment mapFragment;
     LinearLayout popup;
     Button fullbt;
 
     private String url = "https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?start=";
     private String API_KEY_ID = "X-NCP-APIGW-API-KEY-ID=jdgdtz7iav";
-    private String API_KEY_SCREAT_KEY ="X-NCP-APIGW-API-KEY=FBBQc9XzbYciBcYXb5B5ilHFV1gdajDJqc5DmAfK";
+    private String API_KEY_SCREAT_KEY = "X-NCP-APIGW-API-KEY=FBBQc9XzbYciBcYXb5B5ilHFV1gdajDJqc5DmAfK";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,10 +86,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         locationSource =
                 new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
-
-        lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        @SuppressLint("MissingPermission")
-        Location myGPS = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
         NaverMapSdk.getInstance(this).setClient(
                 new NaverMapSdk.NaverCloudPlatformClient("jdgdtz7iav"));
@@ -95,9 +100,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             actionBar.setDisplayShowHomeEnabled(true);
         }
 
-        mapFragment = (MapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
-        popup = (LinearLayout)findViewById(R.id.linear);
-        fullbt = (Button)findViewById(R.id.fullbt);
+        mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        popup = (LinearLayout) findViewById(R.id.linear);
+        fullbt = (Button) findViewById(R.id.fullbt);
         fullbt.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -113,6 +118,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
     }
 
+    final LocationListener gpsLocationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            String provider = location.getProvider();
+            double my_longitude = location.getLongitude();
+            double my_latitude = location.getLatitude();
+            double altitude = location.getAltitude();
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+
+        public void onProviderEnabled(String provider) {
+        }
+
+        public void onProviderDisabled(String provider) {
+        }
+    };
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -125,7 +148,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,  @NonNull int[] grantResults) {
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (locationSource.onRequestPermissionsResult(
                 requestCode, permissions, grantResults)) {
             return;
@@ -134,55 +157,63 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 requestCode, permissions, grantResults);
     }
 
-    public Marker makeMarker(LatLng location){
+    public Marker makeMarker(LatLng goal_location) {
         Marker marker = new Marker();
-        marker.setPosition(location);
+        marker.setPosition(goal_location);
+        marker.setWidth(Marker.SIZE_AUTO);
+        marker.setHeight(Marker.SIZE_AUTO);
 
         marker.setOnClickListener(o -> {
             databaseReference.child("parking3").addChildEventListener(new ChildEventListener() {  // message는 child의 이벤트를 수신합니다.
                 int emptyArea = 0;
+
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    double distance = (double) dataSnapshot.getValue(); // chatData를 가져오고
-                    if(distance>7){
+                    ArrayList array = (ArrayList) dataSnapshot.getValue(); // chatData를 가져오고
+                    double distance = (double) array.get(1);
+                    if (distance > 20) {
                         emptyArea++;
-                        TextView emptyTv = (TextView)findViewById(R.id.available);
-                        emptyTv.setText("남은자리 : "+emptyArea);
                     }
+                    TextView emptyTv = (TextView) findViewById(R.id.available);
+                    emptyTv.setText("남은자리 : " + emptyArea);
                 }
 
                 @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) { }
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                }
 
                 @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) { }
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                }
 
                 @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
 
                 @Override
-                public void onCancelled(DatabaseError databaseError) { }
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+            Button btn_direction = (Button)findViewById(R.id.btn_direction);
+            btn_direction.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    double goal_latitude = goal_location.latitude;
+                    double goal_longitude = goal_location.longitude;
+                    ParkingInfoTask parkingInfoTask = new ParkingInfoTask(url+my_longitude + "," +my_latitude+ "&goal=" + goal_longitude + "," + goal_latitude + "&option=trafast&" + API_KEY_ID + "&" + API_KEY_SCREAT_KEY, null);
+                    parkingInfoTask.execute();
+                }
             });
             popup.setVisibility(View.VISIBLE);
             fullbt.setVisibility(View.VISIBLE);
             return true;
         });
 
-        Button btn_parkingmap = (Button)findViewById(R.id.button_parkingMap);
-        btn_parkingmap.setOnClickListener(o->{
+        Button btn_parkingmap = (Button) findViewById(R.id.button_parkingMap);
+        btn_parkingmap.setOnClickListener(o -> {
             Intent intent = new Intent(getApplicationContext(), ParkingMapActivity.class);
             startActivity(intent);
         });
-
-        Button btn_direction = (Button)findViewById(R.id.btn_direction);
-//        btn_direction.setOnClickListener(o->{
-//            double start_longitude = myGPS.getLongitude();
-//            double start_latitude = myGPS.getLatitude();
-//            double goal_latitude = 35.1794697;
-//            double goal_longitude = 129.0759853;
-//            ParkingInfoTask parkingInfoTask = new ParkingInfoTask(url+start_longitude + "," +start_latitude+ "&goal=" + goal_latitude + "," + goal_longitude + "&option=trafast&" + API_KEY_ID + "&" + API_KEY_SCREAT_KEY, null);
-//            parkingInfoTask.execute();
-//        });
         return marker;
     }
 
@@ -254,6 +285,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         @Override
         protected Void doInBackground(Void... params) {
+            locationpath = new ArrayList<>();
             String result; // 요청 결과를 저장할 변수.
             JSONArray path = null; //모델의 개수
             int size = 0;
