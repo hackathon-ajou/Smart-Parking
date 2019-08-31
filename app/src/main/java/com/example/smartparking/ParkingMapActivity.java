@@ -17,7 +17,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 
-public class TestActivity extends AppCompatActivity {
+public class ParkingMapActivity extends AppCompatActivity {
 
 
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
@@ -27,7 +27,7 @@ public class TestActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_test);
+        setContentView(R.layout.activity_parkingmap);
 
         ArrayList<SensorData> sensorDataList = new ArrayList<>();
         SensorData sensorData = new SensorData();
@@ -37,7 +37,7 @@ public class TestActivity extends AppCompatActivity {
 // 기본 Text를 담을 수 있는 simple_list_item_1을 사용해서 ArrayAdapter를 만들고 listview에 설정
         ArrayAdapter<Double> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1);
 
-        databaseReference.child("sensor").addChildEventListener(new ChildEventListener() {  // message는 child의 이벤트를 수신합니다.
+        databaseReference.child("parking3").addChildEventListener(new ChildEventListener() {  // message는 child의 이벤트를 수신합니다.
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 int resid = 0;
@@ -50,9 +50,6 @@ public class TestActivity extends AppCompatActivity {
                 i++;
                 sensorData.setDistance(distance);
                 sensorDataList.add(sensorData);
-                Log.i("asdf@@@@@@@@@@@@@", String.valueOf(distance));
-                Log.i("SENSORDATA",sensorDataList.toString());
-                Log.i("i==", String.valueOf(i));
                 adapter.add(distance);  // adapter에 추가합니다.
             }
 
