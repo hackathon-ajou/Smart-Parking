@@ -1,8 +1,10 @@
 package com.example.smartparking;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -12,6 +14,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -42,6 +45,10 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -49,6 +56,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private FusedLocationSource locationSource;
     private ArrayList<LatLng> location = new ArrayList<>();
+    private JSONObject JSON_file;
+    private ArrayList<LatLng> locationpath = new ArrayList<>();
+    MapFragment mapFragment;
+
+    private String url = "https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?start=127.1058342,37.359708&goal=129.075986,35.179470&option=trafast&X-NCP-APIGW-API-KEY-ID=jdgdtz7iav&X-NCP-APIGW-API-KEY=FBBQc9XzbYciBcYXb5B5ilHFV1gdajDJqc5DmAfK";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +70,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         locationSource =
                 new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
+
+        EyewearInfoTask eyewearInfoTask = new EyewearInfoTask(url, null);
+        eyewearInfoTask.execute();
 
         NaverMapSdk.getInstance(this).setClient(
                 new NaverMapSdk.NaverCloudPlatformClient("jdgdtz7iav"));
@@ -71,13 +87,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             actionBar.setDisplayShowHomeEnabled(true);
         }
 
-        MapFragment mapFragment = (MapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment = (MapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
         if (mapFragment == null) {
             mapFragment = MapFragment.newInstance(new NaverMapOptions().camera(new CameraPosition(
                     NaverMap.DEFAULT_CAMERA_POSITION.target, NaverMap.DEFAULT_CAMERA_POSITION.zoom, 30, 45)));
             getSupportFragmentManager().beginTransaction().add(R.id.map, mapFragment).commit();
         }
-        mapFragment.getMapAsync(this);
+
     }
 
     @Override
@@ -117,7 +133,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Intent intent = new Intent(getApplicationContext(), ParkingMapActivity.class);
             startActivity(intent);
         });
-
         return marker;
     }
 
@@ -130,7 +145,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 latitude = parkingInfo.getDouble("위도");
                 longitude = parkingInfo.getDouble("경도");
                 location.add(new LatLng(latitude,longitude));
-                Log.i("@@@@@@@@@@@@@@@@@@@",latitude+" "+longitude);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -169,5 +183,56 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             marker.setMap(naverMap);
         }
 
+        PathOverlay path = new PathOverlay();
+        path.setCoords(locationpath);
+
+        path.setColor(Color.BLUE);
+        path.setOutlineWidth(10);
+        path.setPatternImage(OverlayImage.fromResource(R.drawable.path_pattern));
+        path.setPatternInterval(10);
+        path.setMap(naverMap);
+    }
+
+    public class EyewearInfoTask extends AsyncTask<Void, Void, Void> {
+        private String url;
+        private ContentValues values;
+
+        public EyewearInfoTask(String url, ContentValues values) {
+            this.url = url;
+            this.values = values;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            String result; // 요청 결과를 저장할 변수.
+            JSONArray path = null; //모델의 개수
+            int size = 0;
+            RequestHttpURLConnection requestHttpURLConnection = new RequestHttpURLConnection();
+            result = requestHttpURLConnection.request(url, values); // 해당 URL로 부터 결과물을 얻어온다.
+            try {
+                JSON_file = new JSONObject(result);
+                path = new JSONObject(new JSONObject(JSON_file.getString("route")).getJSONArray("trafast").getString(0)).getJSONArray("path");
+                size = path.length();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            for (int i = 0; size > i; i++) {
+                try {
+                    double latitude = 0, longitude = 0;
+                    longitude = path.getJSONArray(i).getDouble(0);
+                    latitude = path.getJSONArray(i).getDouble(1);
+                    locationpath.add(new LatLng(latitude,longitude));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            mapFragment.getMapAsync(MapActivity.this::onMapReady);
+        }
     }
 }
