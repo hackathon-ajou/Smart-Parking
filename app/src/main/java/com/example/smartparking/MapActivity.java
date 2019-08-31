@@ -136,6 +136,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public Marker makeMarker(LatLng location){
         Marker marker = new Marker();
+        marker.setWidth(Marker.SIZE_AUTO);
+        marker.setHeight(Marker.SIZE_AUTO);
         marker.setPosition(location);
 
         marker.setOnClickListener(o -> {
