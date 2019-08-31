@@ -1,9 +1,11 @@
 package com.example.smartparking;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -83,5 +85,22 @@ public class ParkingMapActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) { }
         });
 //        listView.setAdapter(adapter);
+        Button btn_reserve =(Button)findViewById(R.id.reserve);
+        btn_reserve.setOnClickListener(o->{
+
+            AlertDialog.Builder alert_confirm = new AlertDialog.Builder(this);
+            // 메세지
+            alert_confirm.setMessage("1시간 예약되었습니다.");
+            // 확인 버튼 리스너
+            alert_confirm.setPositiveButton("확인", null);
+            // 다이얼로그 생성
+            AlertDialog alert = alert_confirm.create();
+            // 다이얼로그 타이틀
+            alert.setTitle("예약시스템");
+            // 다이얼로그 보기
+            alert.show();
+
+
+        });
     }
 }

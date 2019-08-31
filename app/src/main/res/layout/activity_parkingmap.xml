@@ -71,4 +71,17 @@
         android:visibility="invisible"
         android:background="@drawable/car" />
 
+    <Button
+        android:id="@+id/reserve"
+        android:layout_width="112dp"
+        android:layout_height="63dp"
+        android:layout_below="@id/car3"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="-81dp"
+        android:backgroundTint="#0AF111"
+
+        android:text="예약하기" />
+
+
+
 </RelativeLayout>
