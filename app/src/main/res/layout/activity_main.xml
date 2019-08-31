@@ -19,6 +19,7 @@
         android:layout_below="@id/tv_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"/>
 

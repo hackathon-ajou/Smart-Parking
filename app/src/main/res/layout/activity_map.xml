@@ -16,11 +16,13 @@
     </fragment>
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/fullbt"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:backgroundTint="#00000000"
-        android:text="Button" />
+        android:color="#00000000"
+        android:text="" />
 
     <LinearLayout
         android:id="@+id/linear"
@@ -28,6 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/map"
         android:orientation="vertical"
+        android:background="#FFFFFFFF"
         android:visibility="invisible">
 
         <TextView
@@ -55,7 +58,7 @@
                 android:text="자리보기" />
 
             <Button
-                android:id="@+id/button_direction"
+                android:id="@+id/btn_direction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

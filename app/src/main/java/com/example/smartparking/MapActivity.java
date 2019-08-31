@@ -1,23 +1,29 @@
 package com.example.smartparking;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PointF;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.CameraPosition;
 import com.naver.maps.map.MapFragment;
@@ -25,12 +31,10 @@ import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.NaverMapOptions;
 import com.naver.maps.map.NaverMapSdk;
 import com.naver.maps.map.OnMapReadyCallback;
-import com.naver.maps.map.overlay.Align;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
 import com.naver.maps.map.overlay.PathOverlay;
 import com.naver.maps.map.util.FusedLocationSource;
-import com.naver.maps.map.util.MarkerIcons;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,24 +48,29 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
+
+    private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+    private DatabaseReference databaseReference = firebaseDatabase.getReference();
+
     private FusedLocationSource locationSource;
     private ArrayList<LatLng> location = new ArrayList<>();
     private JSONObject JSON_file;
     private ArrayList<LatLng> locationpath = new ArrayList<>();
+    LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+    @SuppressLint("MissingPermission")
+    Location myGPS = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
     MapFragment mapFragment;
+    LinearLayout popup;
+    Button fullbt;
 
-    private String url = "https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?start=127.1058342,37.359708&goal=129.075986,35.179470&option=trafast&X-NCP-APIGW-API-KEY-ID=jdgdtz7iav&X-NCP-APIGW-API-KEY=FBBQc9XzbYciBcYXb5B5ilHFV1gdajDJqc5DmAfK";
-
+    private String url = "https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?start=";
+    private String API_KEY_ID = "X-NCP-APIGW-API-KEY-ID=jdgdtz7iav";
+    private String API_KEY_SCREAT_KEY ="X-NCP-APIGW-API-KEY=FBBQc9XzbYciBcYXb5B5ilHFV1gdajDJqc5DmAfK";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +80,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         locationSource =
                 new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
 
-        EyewearInfoTask eyewearInfoTask = new EyewearInfoTask(url, null);
-        eyewearInfoTask.execute();
+        ParkingInfoTask parkingInfoTask = new ParkingInfoTask(url, null);
+        parkingInfoTask.execute();
 
         NaverMapSdk.getInstance(this).setClient(
                 new NaverMapSdk.NaverCloudPlatformClient("jdgdtz7iav"));
@@ -88,6 +97,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         mapFragment = (MapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
+        popup = (LinearLayout)findViewById(R.id.linear);
+        fullbt = (Button)findViewById(R.id.fullbt);
+        fullbt.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popup.setVisibility(View.INVISIBLE);
+                fullbt.setVisibility(View.INVISIBLE);
+            }
+        });
         if (mapFragment == null) {
             mapFragment = MapFragment.newInstance(new NaverMapOptions().camera(new CameraPosition(
                     NaverMap.DEFAULT_CAMERA_POSITION.target, NaverMap.DEFAULT_CAMERA_POSITION.zoom, 30, 45)));
@@ -121,10 +139,33 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Marker marker = new Marker();
         marker.setPosition(location);
 
-        LinearLayout popup = (LinearLayout)findViewById(R.id.linear);
-
         marker.setOnClickListener(o -> {
+            databaseReference.child("parking3").addChildEventListener(new ChildEventListener() {  // message는 child의 이벤트를 수신합니다.
+                int emptyArea = 0;
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    double distance = (double) dataSnapshot.getValue(); // chatData를 가져오고
+                    if(distance>7){
+                        emptyArea++;
+                        TextView emptyTv = (TextView)findViewById(R.id.available);
+                        emptyTv.setText("남은자리 : "+emptyArea);
+                    }
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) { }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) { }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) { }
+            });
             popup.setVisibility(View.VISIBLE);
+            fullbt.setVisibility(View.VISIBLE);
             return true;
         });
 
@@ -133,6 +174,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Intent intent = new Intent(getApplicationContext(), ParkingMapActivity.class);
             startActivity(intent);
         });
+
+        Button btn_direction = (Button)findViewById(R.id.btn_direction);
+//        btn_direction.setOnClickListener(o->{
+//            double start_longitude = myGPS.getLongitude();
+//            double start_latitude = myGPS.getLatitude();
+//            double goal_latitude = 35.1794697;
+//            double goal_longitude = 129.0759853;
+//            ParkingInfoTask parkingInfoTask = new ParkingInfoTask(url+start_longitude + "," +start_latitude+ "&goal=" + goal_latitude + "," + goal_longitude + "&option=trafast&" + API_KEY_ID + "&" + API_KEY_SCREAT_KEY, null);
+//            parkingInfoTask.execute();
+//        });
         return marker;
     }
 
@@ -157,7 +208,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         char[] buffer = new char[1024];
         Reader reader = null;
         JSONObject asset = null;
-        JSONArray eyewearInfoList = null;
+        JSONArray parkingInfoList = null;
         try {
             reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             int n;
@@ -166,13 +217,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
             String jsonString = writer.toString();
             asset = new JSONObject(jsonString).getJSONObject("root");
-            eyewearInfoList = asset.getJSONArray("Row");
+            parkingInfoList = asset.getJSONArray("Row");
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }finally {
             is.close();
         }
-        return  eyewearInfoList;
+        return  parkingInfoList;
     }
 
     @Override
@@ -185,19 +236,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         PathOverlay path = new PathOverlay();
         path.setCoords(locationpath);
-
         path.setColor(Color.BLUE);
-        path.setOutlineWidth(10);
+        path.setOutlineWidth(5);
         path.setPatternImage(OverlayImage.fromResource(R.drawable.path_pattern));
         path.setPatternInterval(10);
         path.setMap(naverMap);
+        path.setMap(null);
     }
 
-    public class EyewearInfoTask extends AsyncTask<Void, Void, Void> {
+    public class ParkingInfoTask extends AsyncTask<Void, Void, Void> {
         private String url;
         private ContentValues values;
 
-        public EyewearInfoTask(String url, ContentValues values) {
+        public ParkingInfoTask(String url, ContentValues values) {
             this.url = url;
             this.values = values;
         }
