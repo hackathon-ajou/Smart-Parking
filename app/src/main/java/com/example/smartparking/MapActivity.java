@@ -1,17 +1,11 @@
 package com.example.smartparking;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,8 +16,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -78,6 +70,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private String url = "https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?start=";
     private String API_KEY_ID = "X-NCP-APIGW-API-KEY-ID=jdgdtz7iav";
     private String API_KEY_SCREAT_KEY = "X-NCP-APIGW-API-KEY=FBBQc9XzbYciBcYXb5B5ilHFV1gdajDJqc5DmAfK";
+
+    PathOverlay path = new PathOverlay();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -264,7 +258,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             marker.setMap(naverMap);
         }
         if(locationpath.size()>2) {
-            PathOverlay path = new PathOverlay();
+
             path.setCoords(locationpath);
             path.setColor(Color.BLUE);
             path.setOutlineWidth(5);
